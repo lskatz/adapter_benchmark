@@ -51,7 +51,7 @@ rule add_adapters:
             ref={input.adapters} \
             right \
             int=f \
-            2> {log}
+            2> {log} && \
         cat output/dirty.fq | \
             paste - - - - | \
             head -n 78999 | \
