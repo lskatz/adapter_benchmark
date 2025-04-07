@@ -23,7 +23,7 @@ jobs:
       - name: benchmarks
         run: |
           echo "variable CORES: '$CORES'"
-          snakemake --use-conda --scheduler simple --jobs $CORES
+          snakemake --use-conda --scheduler greedy --jobs $CORES
       - uses: actions/upload-artifact@v4
         with:
           name: benchmarks
