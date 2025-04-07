@@ -12,6 +12,7 @@ TOOLS=[
     "bbduk",
     "fastp",
     "adapterremoval",
+    "fasten",
 ]
 FASTQ="ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR921/004/SRR9218144/SRR9218144.fastq.gz"
 
@@ -60,7 +61,7 @@ rule cutadapt:
         "output/processed/cutadapt.fq"
     log: "output/logs/cutadapt.log"
     conda: "envs/cutadapt.yaml"
-    threads: 10
+    threads: 1
     benchmark:
         repeat("output/benchmarks/cutadapt.benchmark.txt", 3)
     shell:
@@ -97,6 +98,26 @@ rule cutadapt:
             2> {log}
         """
 
+rule fasten:
+    input:
+        fastq=rules.add_adapters.output,
+        adapters="gruseq.fa",
+    output:
+        "output/processed/fasten.fq"
+    conda: "envs/fasten.yaml"
+    log: "output/logs/fasten.log"
+    threads: 1
+    benchmark:
+        repeat("output/benchmarks/fasten.benchmark.txt", 3)
+    shell:
+        """
+        fasten \
+          --adapterseqs {input.adapters} \
+          < {input.fastq} \
+          > {output} \
+          2> {log}
+        """
+        
 rule trimmomatic:
     input:
         fastq=rules.add_adapters.output,
@@ -105,7 +126,7 @@ rule trimmomatic:
         "output/processed/trimmomatic.fq"
     conda: "envs/trimmomatic.yaml"
     log: "output/logs/trimmomatic.log"
-    threads: 10
+    threads: 1
     benchmark:
         repeat("output/benchmarks/trimmomatic.benchmark.txt", 3)
     shell:
@@ -130,7 +151,7 @@ rule bbduk:
         "output/processed/bbduk.fq"
     conda: "envs/main.yaml"
     log: "output/logs/bbduk.log"
-    threads: 10
+    threads: 1
     benchmark:
         repeat("output/benchmarks/bbduk.benchmark.txt", 3)
     shell:
@@ -157,7 +178,7 @@ rule fastp:
         json="output/processed/fastp.json",
     conda: "envs/fastp.yaml"
     log: "output/logs/fastp.log"
-    threads: 10
+    threads: 1
     benchmark:
         repeat("output/benchmarks/fastp.benchmark.txt", 3)
     shell:
@@ -181,7 +202,7 @@ rule adapterremoval:
         fq="output/processed/adapterremoval.fq",
     conda: "envs/adapterremoval.yaml"
     log: "output/logs/adapterremoval.log"
-    threads: 10
+    threads: 1
     shadow: "shallow"
     benchmark:
         repeat("output/benchmarks/adapterremoval.benchmark.txt", 3)

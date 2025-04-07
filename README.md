@@ -9,6 +9,7 @@ The following tools are compared:
  - [Cutadapt](https://cutadapt.readthedocs.io/en/stable/)
  - [Fastp](https://github.com/OpenGene/fastp)
  - [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic)
+ - [Fasten](https://github.com/lskatz/fasten)
 
 ## Fake adapters, "gruseq"
 The comparison adds fake truseq adapters, "gruseq", provided by Brian Bushnell,
@@ -34,4 +35,3 @@ Run the benchmarking workflow with something like:
 ```bash
 snakemake --use-conda --jobs 10
 ```
-

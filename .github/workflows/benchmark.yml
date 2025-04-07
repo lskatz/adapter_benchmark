@@ -1,0 +1,23 @@
+on: push
+name: benchmark
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: conda
+        run: |
+          echo "$CONDA/bin" >> "$GITHUB_PATH"
+          $CONDA/bin/conda install snakemake -y
+          which snakemake
+      - name: test env
+        run: |
+          which snakemake
+      - name: benchmarks
+        run: |
+          CORES=$(nproc)
+          snakemake --use-conda --jobs $CORES
+           

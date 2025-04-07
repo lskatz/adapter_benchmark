@@ -1,0 +1,6 @@
+name: fasten
+channels:
+    - conda-forge
+    - bioconda
+dependencies:
+    - fasten=0.8.5
