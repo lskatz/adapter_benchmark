@@ -11,16 +11,21 @@ jobs:
         run: |
           echo "CORES=$(nproc)" >> $GITHUB_ENV
       - uses: actions/checkout@v4
-      - name: benchmark with snakemake
-        uses: snakemake/snakemake-github-action@v1
-        with:
-          directory: .test
-          snakefile: "workflow/Snakefile"
-          args: "--jobs ${{ fromJSON(env.CORES) }} --use-conda"
-          show-disk-usage-on-error: true
+      - name: conda
+        run: |
+          echo "$CONDA/bin" >> "$GITHUB_PATH"
+          $CONDA/bin/conda install snakemake -y -c bioconda -c conda-forge
+      - name: test env
+        run: |
+          which snakemake
+          snakemake --help
+          snakemake --version
+      - name: benchmarks
+        run: |
+          echo "variable CORES: '$CORES'"
+          snakemake --use-conda --jobs $CORES
       - uses: actions/upload-artifact@v4
         with:
           name: benchmarks
           path: |
-            .test/**
             output/**
