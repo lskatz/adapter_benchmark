@@ -16,12 +16,8 @@ jobs:
         with:
           directory: .test
           snakefile: "workflow/Snakefile"
-          args: "--jobs 4 --use-conda"
+          args: "--jobs $CORES --use-conda"
           show-disk-usage-on-error: true
-      #- name: benchmarks
-      #  run: |
-      #    CORES=$(nproc)
-      #    snakemake --use-conda --jobs $CORES
       - uses: actions/upload-artifact@v4
         with:
           name: benchmarks
