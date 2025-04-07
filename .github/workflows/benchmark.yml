@@ -11,7 +11,7 @@ jobs:
       - name: conda
         run: |
           echo "$CONDA/bin" >> "$GITHUB_PATH"
-          $CONDA/bin/conda install snakemake -y
+          $CONDA/bin/conda install snakemake -y -c bioconda
           which snakemake
       - name: test env
         run: |
@@ -20,4 +20,7 @@ jobs:
         run: |
           CORES=$(nproc)
           snakemake --use-conda --jobs $CORES
-           
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmarks
+          path: output/**
