@@ -46,7 +46,7 @@ rule add_adapters:
         """
         addadapters.sh \
             in={input.fastq} \
-            out={output} \
+            out=output/dirty.fq \
             qout=33 \
             ref={input.adapters} \
             right \
