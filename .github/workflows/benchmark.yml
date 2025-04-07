@@ -16,7 +16,7 @@ jobs:
         with:
           directory: .test
           snakefile: "workflow/Snakefile"
-          args: "--jobs $CORES --use-conda"
+          args: "--jobs ${{ fromJSON(env.CORES) }} --use-conda"
           show-disk-usage-on-error: true
       - uses: actions/upload-artifact@v4
         with:
