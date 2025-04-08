@@ -31,8 +31,8 @@ rule download_fastq:
         fastq=FASTQ
     shell:
         """
-        wget --output-document {output} {params.fastq}
-        gunzip -c {output} | head -n 888888 | gzip -c9 > tmp.fastq
+        wget --output-document {output} {params.fastq} && \
+        gunzip -c {output} | head -n 888888 | gzip -c9 > tmp.fastq && \
         mv tmp.fastq {output}
         """
 
