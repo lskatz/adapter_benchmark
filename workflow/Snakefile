@@ -46,7 +46,8 @@ rule download_fastq:
         "output/data.fastq.gz"
     conda: "envs/main.yaml"
     input:
-        random_fastq=rules.generate_fastq.output[0]
+        #random_fastq=rules.generate_fastq.output[0]
+        random_fastq="data/SRR9218144.888888.fastq.gz"
     shell:
         """
         cp -v {input.random_fastq} {output}
