@@ -29,11 +29,12 @@ rule download_fastq:
     conda: "envs/main.yaml"
     params:
         fastq=FASTQ
+        tmpfile="output/tmp.fastq.gz"
     shell:
         """
         wget --output-document {output} {params.fastq} && \
-        gunzip -c {output} | head -n 888888 | gzip -c9 > tmp.fastq && \
-        mv tmp.fastq {output}
+        gunzip -c {output} | head -n 888888 | gzip -c9 > {params.tmpfile} && \
+        mv {params.tmpfile} {output}
         """
 
 rule add_adapters:
