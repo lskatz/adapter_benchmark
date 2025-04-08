@@ -29,14 +29,13 @@ rule all:
 
 rule generate_fastq:
     output:
-        directory("output"),
         "output/random.fastq.gz"
     conda: "envs/main.yaml"
     params:
         num_reads=100000,
         seq_length=100
     run:
-        with open(output[1], "wt") as outfile:
+        with open(output[0], "wt") as outfile:
             for i in range(params.num_reads):
                 seq = ''.join(random.choices("ACGT", k=params.seq_length))
                 qual = ''.join(random.choices("IJKLMNOPQRSTUVWXYZ", k=params.seq_length))
@@ -46,11 +45,11 @@ rule download_fastq:
     output:
         "output/data.fastq.gz"
     conda: "envs/main.yaml"
-    params:
-        random_fastq=rules.generate_fastq.output[1]
+    input:
+        random_fastq=rules.generate_fastq.output[0]
     shell:
         """
-        cp -v {params.random_fastq} {output}
+        cp -v {input.random_fastq} {output}
         """
 
 rule add_adapters:
