@@ -15,7 +15,7 @@ TOOLS=[
     "fasten",
 ]
 FASTQ="ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR921/004/SRR9218144/SRR9218144.fastq.gz"
-replicates=1
+replicates=3
 
 rule all:
     input:
@@ -39,25 +39,19 @@ rule add_adapters:
         fastq=rules.download_fastq.output,
         adapters="gruseq.fa",
     output:
-        "output/dirty.fq.gz"
+        "output/dirty.fq"
     log: "output/logs/add_adapters.log"
     conda: "envs/main.yaml"
     shell:
         """
         addadapters.sh \
             in={input.fastq} \
-            out=output/dirty.fq \
+            out={output} \
             qout=33 \
             ref={input.adapters} \
             right \
             int=f \
-            2> {log} && \
-        cat output/dirty.fq | \
-            paste - - - - | \
-            head -n 78999 | \
-            sort -k2,2 | \
-            tr '\t' '\n' | \
-            gzip -c > {output}
+            2> {log}
         """
 
 rule cutadapt:
@@ -73,8 +67,7 @@ rule cutadapt:
         repeat("output/benchmarks/cutadapt.benchmark.txt", replicates)
     shell:
         """
-        gunzip -c {input.fastq} | \
-            cutadapt \
+        cutadapt \
             --cores {threads} \
             --minimum-length 10 \
             --anywhere CTGACCTTCTCATATACGAGCTTAGAATCGATATGATACTGAGACGTGCAACGAGGAGCAGGC \
@@ -101,32 +94,11 @@ rule cutadapt:
             --anywhere CTGACCTTCTCATATACGAGCTTAGAATCGATACTCGCCTGTGAGACGTGCAACGAGGAGCAGGC \
             --anywhere CTGACCTTCTCATATACGAGCTTAGAATCGATATAGCTGTGTGAGACGTGCAACGAGGAGCAGGC \
             --anywhere CTGACCTTCTCATATACGAGCTTAGAATCGATATGGAAGGGTGAGACGTGCAACGAGGAGCAGGC \
-            - \
+            {input.fastq} \
             > {output} \
             2> {log}
         """
 
-rule fasten:
-    input:
-        fastq=rules.add_adapters.output,
-        adapters="gruseq.fa",
-    output:
-        "output/processed/fasten.fq"
-    conda: "envs/fasten.yaml"
-    log: "output/logs/fasten.log"
-    threads: 1
-    benchmark:
-        repeat("output/benchmarks/fasten.benchmark.txt", replicates)
-    shell:
-        """
-        gunzip -c {input.fastq} | \
-          fasten_trim \
-          --adapterseqs {input.adapters} \
-          < {input.fastq} \
-          > {output} \
-          2> {log}
-        """
-        
 rule trimmomatic:
     input:
         fastq=rules.add_adapters.output,
@@ -217,9 +189,8 @@ rule adapterremoval:
         repeat("output/benchmarks/adapterremoval.benchmark.txt", replicates)
     shell:
         """
-        gunzip -c {input.fastq} | \
-            AdapterRemoval \
-            --file1 - \
+        AdapterRemoval \
+            --file1 {input.fastq} \
             --output1 {output.fq} \
             --adapter-list {input.adapters} \
             --thread {threads} \
@@ -258,3 +229,24 @@ rule plot:
             {input.grades}
         """
 
+
+
+rule fasten:
+    input:
+        fastq=rules.add_adapters.output,
+        adapters="gruseq.fa",
+    output:
+        "output/processed/fasten.fq"
+    conda: "envs/fasten.yaml"
+    log: "output/logs/fasten.log"
+    threads: 1
+    benchmark:
+        repeat("output/benchmarks/fasten.benchmark.txt", replicates)
+    shell:
+        """
+        fasten_trim \
+          --adapterseqs {input.adapters} \
+          < {input.fastq} \
+          > {output} \
+          2> {log};
+        """
