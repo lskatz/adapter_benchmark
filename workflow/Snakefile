@@ -6,6 +6,9 @@
 #   http://seqanswers.com/forums/attachment.php?attachmentid=2993&d=1398383571
 # Fredrik Boulund 2019
 
+import random
+import gzip
+
 TOOLS=[
     "cutadapt",
     "trimmomatic",
@@ -19,22 +22,35 @@ replicates=3
 
 rule all:
     input:
+        #"output/data.fastq.gz"
         expand("output/grades/{tool}.grade.txt", tool=TOOLS),
         expand("output/plots/{plot}.pdf", plot=["benchmarks", "grades"]),
-        
+
+
+rule generate_fastq:
+    output:
+        directory("output"),
+        "output/random.fastq.gz"
+    conda: "envs/main.yaml"
+    params:
+        num_reads=100000,
+        seq_length=100
+    run:
+        with open(output[1], "wt") as outfile:
+            for i in range(params.num_reads):
+                seq = ''.join(random.choices("ACGT", k=params.seq_length))
+                qual = ''.join(random.choices("IJKLMNOPQRSTUVWXYZ", k=params.seq_length))
+                outfile.write(f"@read{i}\n{seq}\n+\n{qual}\n")
 
 rule download_fastq:
     output:
         "output/data.fastq.gz"
     conda: "envs/main.yaml"
     params:
-        fastq=FASTQ,
-        tmpfile="output/tmp.fastq.gz"
+        random_fastq=rules.generate_fastq.output[1]
     shell:
         """
-        wget --output-document {output} {params.fastq} && \
-        gunzip -c {output} | head -n 888888 | gzip -c9 > {params.tmpfile} && \
-        mv {params.tmpfile} {output}
+        cp -v {params.random_fastq} {output}
         """
 
 rule add_adapters:
