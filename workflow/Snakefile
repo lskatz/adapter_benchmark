@@ -28,7 +28,7 @@ rule download_fastq:
         "output/data.fastq.gz"
     conda: "envs/main.yaml"
     params:
-        fastq=FASTQ
+        fastq=FASTQ,
         tmpfile="output/tmp.fastq.gz"
     shell:
         """
