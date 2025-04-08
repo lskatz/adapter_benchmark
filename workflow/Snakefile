@@ -32,6 +32,8 @@ rule download_fastq:
     shell:
         """
         wget --output-document {output} {params.fastq}
+        zcat {output} | head -n 888888 | gzip -c9 > tmp.fastq
+        mv tmp.fastq {output}
         """
 
 rule add_adapters:
